@@ -11,17 +11,37 @@ class NyaaScraper:
         # anime from trusted uploaders
         self.source = 'https://nyaa.si'
         self.reqDelay = 1
+        self.dbPath = 'db.csv'
+        self.initFile()
+        
+    def initFile(self):
+        f = None
+        try:
+            f = open(self.dbPath, 'wt')
+        except FileNotFoundError:
+            f = open(self.dbPath, 'xt')
+        return f
 
-    def scrape(self, title, isSubbed):
-        url = self.constructURL(title, isSubbed)
+    def writeToFile(self, content):
+        f = open(self.dbPath, 'at')
+        f.write(content)
+        f.close()
+
+    def scrape(self, search, isSubbed):
+        url = self.constructURL(search, isSubbed)
         rawHtml = requests.get(url).text
         soup = BeautifulSoup(rawHtml, 'lxml')
-        entry = soup.find('tr', class_ = 'success')
-        return entry
+        entries = soup.findAll('tr', class_ = 'success')
+        for entry in entries:
+            data = self.extractData(entry)
+            # remove commas for csv formatting
+            data = list(map(lambda x : x.replace(',', ''), data))
+            self.writeToFile(','.join(data) + '\n')
+        
 
-    def constructURL(self, title, isSubbed):
+    def constructURL(self, search, isSubbed):
         url = f'{self.source}/?f=2&c=1_$SUB&q=$TITLE'
-        url = url.replace('$TITLE', title)
+        url = url.replace('$TITLE', search)
         url = url.replace('$SUB', self.SUBBED if isSubbed else self.RAW)
         return url
 
@@ -49,4 +69,4 @@ class NyaaScraper:
         return column.findAll('a')[1]['href']
 
 scraper = NyaaScraper()
-print(scraper.extractData(scraper.scrape('jujutsu kaisen', True)))
+scraper.scrape('jujutsu kaisen', True)
