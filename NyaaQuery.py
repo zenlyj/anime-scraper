@@ -5,51 +5,50 @@ class NyaaQuery:
     def __init__(self, path):
         try:
             f = open(path, 'rt')
-            self.path = path
-            self.data = self.deserialize(f)
+            self.__data = self.__deserialize(f)
         except FileNotFoundError:
             sys.exit('File does not exist')
 
-    def deserialize(self, file):
+    def __deserialize(self, file):
         entries = []
         for line in file:
             entries.append(line)
         file.close()
         return entries
 
-    def getData(self):
-        return self.data
+    def __getData(self):
+        return self.__data
 
     def getNames(self):
-        return list(map(lambda entry : entry.split(',')[0], self.data))
+        return list(map(lambda entry : entry.split(',')[0], self.__data))
 
     def getMagnetLinks(self):
-        return list(map(lambda entry : entry.split(',')[2], self.data))
+        return list(map(lambda entry : entry.split(',')[2], self.__data))
 
     def getUploaders(self):
         uploaders = set()
-        for entry in self.data:
-            uploader = self.getUploader(entry)
+        for entry in self.__data:
+            uploader = self.__getUploader(entry)
             uploaders.add(uploader)
-        self.data = list(uploaders)
+        self.__data = list(uploaders)
 
     def filterByUploader(self, uploader):
-        self.data = list(filter(lambda entry : True if self.getUploader(entry).lower() == uploader.lower() else False, self.data))
+        self.__data = list(filter(lambda entry : True if self.__getUploader(entry).lower() == uploader.lower() else False, self.__data))
 
     def filterByQuality(self, quality):
-        self.data = list(filter(lambda entry : True if self.getQuality(entry) == quality.lower() else False, self.data))
+        self.__data = list(filter(lambda entry : True if self.__getQuality(entry) == quality.lower() else False, self.__data))
 
     def sortByName(self, isDsc):
-        self.data = sorted(self.data, key = lambda x : x.split(',')[0], reverse=isDsc)
+        self.__data = sorted(self.__data, key = lambda x : x.split(',')[0], reverse=isDsc)
 
     def sortByDownloads(self, isDsc):
-        self.data = sorted(self.data, key = lambda x : int(x.split(',')[7]), reverse=isDsc)
+        self.__data = sorted(self.__data, key = lambda x : int(x.split(',')[7]), reverse=isDsc)
 
     def sortByLeechers(self, isDsc):
-        self.data = sorted(self.data, key = lambda x : int(x.split(',')[6]), reverse=isDsc)
+        self.__data = sorted(self.__data, key = lambda x : int(x.split(',')[6]), reverse=isDsc)
 
     def sortBySeeders(self, isDsc):
-        self.data = sorted(self.data, key = lambda x : int(x.split(',')[5]), reverse=isDsc)
+        self.__data = sorted(self.__data, key = lambda x : int(x.split(',')[5]), reverse=isDsc)
 
     def sortBySize(self, isDsc):
         def comparator(size):
@@ -64,15 +63,15 @@ class NyaaQuery:
             elif unit == 'GiB':
                 power = 9
             return val * math.pow(10, power)
-        self.data = sorted(self.data, key = lambda x : comparator(x.split(',')[3]), reverse=isDsc)
+        self.__data = sorted(self.__data, key = lambda x : comparator(x.split(',')[3]), reverse=isDsc)
 
-    def getUploader(self, entry):
+    def __getUploader(self, entry):
         name = entry.split(',')[0]
         uploader = name.split(' ')[0]
         uploader = uploader[1 : len(uploader)-1]
         return uploader
 
-    def getQuality(self, entry):
+    def __getQuality(self, entry):
         name = entry.split(',')[0]
         if '[1080p]' in name or '(1080p)' in name:
             return '1080p'
