@@ -39,6 +39,9 @@ class NyaaQuery:
     def filterByQuality(self, quality):
         self.data = list(filter(lambda entry : True if self.getQuality(entry) == quality.lower() else False, self.data))
 
+    def sortByName(self, isDsc):
+        self.data = sorted(self.data, key = lambda x : x.split(',')[0], reverse=isDsc)
+
     def sortByDownloads(self, isDsc):
         self.data = sorted(self.data, key = lambda x : int(x.split(',')[7]), reverse=isDsc)
 
