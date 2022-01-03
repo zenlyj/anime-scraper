@@ -17,24 +17,30 @@ class NyaaQuery:
         file.close()
         return entries
 
+    def getData(self):
+        return self.data
+
     def getUploaders(self):
         uploaders = set()
         for entry in self.data:
             uploader = self.getUploader(entry)
             uploaders.add(uploader)
-        return list(uploaders)
+        self.data = list(uploaders)
 
     def filterByUploader(self, uploader):
-        return list(filter(lambda entry : True if self.getUploader(entry).lower() == uploader.lower() else False, self.data))
+        self.data = list(filter(lambda entry : True if self.getUploader(entry).lower() == uploader.lower() else False, self.data))
+
+    def filterByQuality(self, quality):
+        self.data = list(filter(lambda entry : True if self.getQuality(entry) == quality.lower() else False, self.data))
 
     def sortByDownloads(self, isDsc):
-        return sorted(self.data, key = lambda x : int(x.split(',')[7]), reverse=isDsc)
+        self.data = sorted(self.data, key = lambda x : int(x.split(',')[7]), reverse=isDsc)
 
     def sortByLeechers(self, isDsc):
-        return sorted(self.data, key = lambda x : int(x.split(',')[6]), reverse=isDsc)
+        self.data = sorted(self.data, key = lambda x : int(x.split(',')[6]), reverse=isDsc)
 
     def sortBySeeders(self, isDsc):
-        return sorted(self.data, key = lambda x : int(x.split(',')[5]), reverse=isDsc)
+        self.data = sorted(self.data, key = lambda x : int(x.split(',')[5]), reverse=isDsc)
 
     def sortBySize(self, isDsc):
         def comparator(size):
@@ -49,7 +55,7 @@ class NyaaQuery:
             elif unit == 'GiB':
                 power = 9
             return val * math.pow(10, power)
-        return sorted(self.data, key = lambda x : comparator(x.split(',')[3]), reverse=isDsc)
+        self.data = sorted(self.data, key = lambda x : comparator(x.split(',')[3]), reverse=isDsc)
 
     def getUploader(self, entry):
         name = entry.split(',')[0]
@@ -57,5 +63,19 @@ class NyaaQuery:
         uploader = uploader[1 : len(uploader)-1]
         return uploader
 
-for i in NyaaQuery('db.csv').sortBySeeders(True):
+    def getQuality(self, entry):
+        name = entry.split(',')[0]
+        if '[1080p]' in name or '(1080p)' in name:
+            return '1080p'
+        elif '[720p]' in name or '(720p)' in name:
+            return '720p'
+        elif '[480p]' in name or '(480p)' in name:
+            return '480p'
+        else:
+            return None
+
+q = NyaaQuery('db.csv')
+q.filterByQuality('1080p')
+q.filterByUploader('erai-raws')
+for i in q.getData():
     print(i)
