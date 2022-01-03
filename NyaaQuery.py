@@ -20,6 +20,12 @@ class NyaaQuery:
     def getData(self):
         return self.data
 
+    def getNames(self):
+        return list(map(lambda entry : entry.split(',')[0], self.data))
+
+    def getMagnetLinks(self):
+        return list(map(lambda entry : entry.split(',')[2], self.data))
+
     def getUploaders(self):
         uploaders = set()
         for entry in self.data:
@@ -73,9 +79,3 @@ class NyaaQuery:
             return '480p'
         else:
             return None
-
-q = NyaaQuery('db.csv')
-q.filterByQuality('1080p')
-q.filterByUploader('erai-raws')
-for i in q.getData():
-    print(i)
