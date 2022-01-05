@@ -1,1 +1,1 @@
-Web scraper that collects anime related data
+Python APIs for anime web scraping and data organization
