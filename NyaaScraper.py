@@ -13,7 +13,7 @@ class NyaaScraper:
         self.reqDelay = 1
         self.dataPath = dataPath
         try:
-            f = open(self.dataPath, 'wt')
+            f = open(self.dataPath, 'rt')
         except FileNotFoundError:
             f = open(self.dataPath, 'xt')
 
@@ -23,6 +23,8 @@ class NyaaScraper:
         f.close()
 
     def scrape(self, search, isSubbed):
+        # erase content in file before storing scraped data
+        open(self.dataPath, 'w').close()
         url = self.__constructURL(search, isSubbed, 1)
         rawHtml = requests.get(url).text
         soup = BeautifulSoup(rawHtml, 'lxml')
