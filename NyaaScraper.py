@@ -7,11 +7,11 @@ class NyaaScraper:
     __SUBBED = '2'
     __RAW = '3'
 
-    def __init__(self):
+    def __init__(self, dataPath):
         # anime from trusted uploaders
         self.source = 'https://nyaa.si'
         self.reqDelay = 1
-        self.dataPath = 'scrapedData.csv'
+        self.dataPath = dataPath
         try:
             f = open(self.dataPath, 'wt')
         except FileNotFoundError:
